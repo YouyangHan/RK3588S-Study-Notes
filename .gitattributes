@@ -1,0 +1,4 @@
+# 统一换行：仓库内一律 LF，脚本在板上可直接执行
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
