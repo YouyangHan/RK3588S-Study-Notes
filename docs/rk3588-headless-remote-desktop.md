@@ -3,7 +3,7 @@
 > 适用环境：RK3588 开发板，Ubuntu 24.04 LTS (aarch64)，GNOME 46 + Wayland + GDM3，**已开启 GDM 自动登录**。
 > 目标：板子不接显示器，Windows 用系统自带「远程桌面连接 (mstsc)」直接进入已有的 GNOME 桌面，**重启后依然可用，无需任何人工操作**。
 >
-> 本文所有命令均可直接复制执行。文中的用户名 `tyzc`、密码 `123456`、IP `10.168.1.114` 请按实际情况替换。
+> 本文所有命令均可直接复制执行。文中的用户名 `tyzc`、密码 `123456`、IP `10.168.1.115` 请按实际情况替换。
 
 ---
 
@@ -66,7 +66,7 @@ ExecStart=/usr/bin/gnome-shell --virtual-monitor 1920x1080
 ## 2. 前置检查
 
 ```bash
-ssh tyzc@10.168.1.114
+ssh tyzc@10.168.1.115
 
 # 1) 系统信息
 cat /etc/os-release | head -2          # Ubuntu 24.04
@@ -383,7 +383,7 @@ sudo journalctl _UID=$(id -u) -b --no-pager | grep -F 'Added virtual monitor'
 
 ```powershell
 # 端口连通性
-Test-NetConnection 10.168.1.114 -Port 3389
+Test-NetConnection 10.168.1.115 -Port 3389
 # 期望：TcpTestSucceeded : True
 ```
 
@@ -410,10 +410,10 @@ ss -tln | grep 3389                           # 应在监听
 
 ```bat
 :: 保存凭据（只需一次），之后连接不再询问密码
-cmdkey /generic:TERMSRV/10.168.1.114 /user:tyzc /pass:123456
+cmdkey /generic:TERMSRV/10.168.1.115 /user:tyzc /pass:123456
 
 :: 发起连接
-mstsc /v:10.168.1.114
+mstsc /v:10.168.1.115
 ```
 
 - 首次连接会弹出**证书警告**（自签名证书），勾选「不再询问」并点「是」。
@@ -485,7 +485,7 @@ systemctl --user disable --now gnome-remote-desktop.service
 - `~/.config/keyring.env` 里是**明文密钥环密码**，权限 600（仅本人可读）。这是自动登录场景下解锁密钥环的代价；开发板内网使用可接受，公网/生产环境请勿照搬。
 - RDP 走的是 TLS 加密（自签名证书），但**不要把这个 3389 直接暴露到公网**；需要外网访问请走 SSH 隧道或 VPN：
   ```bash
-  ssh -L 3389:127.0.0.1:3389 tyzc@10.168.1.114
+  ssh -L 3389:127.0.0.1:3389 tyzc@10.168.1.115
   # 然后 mstsc /v:127.0.0.1
   ```
 - 修改系统登录密码**不会**自动改变密钥环密码。如果你改了系统密码，请同步修改 `~/.config/keyring.env` 中的 `KEYRING_PASSWORD`（密钥环密码本身不变，除非你在桌面里手动改过密钥环）。

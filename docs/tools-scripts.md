@@ -1,7 +1,7 @@
 # tools/ 脚本说明文档
 
 > 目录：`D:\Code\RK3588\tools`
-> 这些脚本用于在 **Windows 主机上远程操作 RK3588 开发板**（`10.168.1.114`）。
+> 这些脚本用于在 **Windows 主机上远程操作 RK3588 开发板**（`10.168.1.115`）。
 > 背景：Windows 上既没有 `sshpass`，也没有原生可用的 `plink`，所以用 Python + paramiko 封装 SSH，实现"一条命令完成远程操作"。
 
 ---
@@ -42,7 +42,7 @@
 - 验证：
 
   ```bash
-  ping -n 1 10.168.1.114
+  ping -n 1 10.168.1.115
   ```
 
 ### 1.3 统一的工作方式
@@ -56,7 +56,7 @@ cd /d/Code/RK3588
 脚本内部硬编码了连接信息：
 
 ```python
-HOST, USER, PASS = "10.168.1.114", "tyzc", "123456"
+HOST, USER, PASS = "10.168.1.115", "tyzc", "123456"
 ```
 
 换板子/换账号时，**两个 Python 脚本都要改这一行**。
@@ -72,7 +72,7 @@ HOST, USER, PASS = "10.168.1.114", "tyzc", "123456"
 它等价于：
 
 ```bash
-sshpass -p 123456 ssh tyzc@10.168.1.114 "<命令>"
+sshpass -p 123456 ssh tyzc@10.168.1.115 "<命令>"
 ```
 
 但没有 `sshpass` 依赖。
@@ -157,8 +157,8 @@ MSYS_NO_PATHCONV=1 py -I tools/ssh_put.py <本地文件> <远程路径> py
 | 参数 | 说明 |
 |------|------|
 | 第 1 个 | Windows 本地文件路径 |
-| 第 2 个 | 板子上的目标路径（**建议用绝对路径**，如 `/tmp/check.sh`） |
-| 第 3 个（可选） | `run` = `bash <路径>`；`py` = `python3 <路径>`；省略则只上传 |
+| 第 2 个 | 板子上的目标路径（**建议用绝对路径**，如 `/tmp/check.sh`）。注意这是**文件**路径；给目录路径会失败 |
+| 第 3 个（可选） | `run` = `bash <路径>`；`py` = `python3 <路径>`；`exe` = `chmod +x <路径> && <路径>`（传 ELF 可执行文件用这个）；`raw` = 只上传且跳过换行转换；省略则只上传 |
 
 ### 3.3 常用示例
 
@@ -171,18 +171,24 @@ MSYS_NO_PATHCONV=1 py -I tools/ssh_put.py my_check.py /tmp/my_check.py py
 
 # 只上传，之后手动执行
 py -I tools/ssh_put.py tools/keyring-supervisor.sh /home/tyzc/.local/bin/keyring-supervisor.sh
+
+# 上传交叉编译出的 ELF，自动加执行位并运行
+MSYS_NO_PATHCONV=1 py -I tools/ssh_put.py examples/hello-aarch64/hello /tmp/hello exe
 ```
 
 ### 3.4 工作原理
 
 ```python
-data = open(local_path, "rb").read().replace(b"\r\n", b"\n")   # Windows 换行转 Unix
+data = open(local_path, "rb").read()
+if mode != "raw" and b"\x00" not in data:          # 文本才做换行转换，二进制跳过
+    data = data.replace(b"\r\n", b"\n")
 stdin, stdout, stderr = cli.exec_command(f"cat > {remote_path}")  # 用 cat > 写入远程文件
 stdin.write(data)
 stdin.channel.shutdown_write()                                  # 通知对端写完
 ```
 
-- **换行归一化**：把 Windows 的 `CRLF` 转成 `LF`，避免 bash 报 `\r: command not found`
+- **换行归一化（仅文本）**：把 Windows 的 `CRLF` 转成 `LF`，避免 bash 报 `\r: command not found`
+- **二进制安全**：ELF 等二进制里也可能出现 `0x0d 0x0a` 字节对（`examples/hello-aarch64/hello` 里就有 47 处），无条件替换会截断文件。脚本用 `NUL` 字节判定内容是否为二进制，跳过转换；也可用 `raw` 参数强制跳过
 - **不用 SFTP**：早期用 `sftp.put` 时，Git Bash 会把远程路径 `/tmp/x` 改写成 `C:/...`，导致 `FileNotFoundError`。改用 `cat > 路径` 后稳定，且不依赖板子上的 SFTP 子系统
 - 执行阶段与 `ssh_cmd.py` 完全一致（120 秒超时、UTF-8 解码、stderr 标记）
 
@@ -192,10 +198,11 @@ stdin.channel.shutdown_write()                                  # 通知对端�
 |------|------|
 | `MSYS_NO_PATHCONV=1` | 远程路径是 `/tmp/...` 这类绝对路径时**必须加**，否则会被 Git Bash 改写 |
 | 目标目录必须存在 | `cat >` 不会自动创建目录，先 `ssh_cmd.py "mkdir -p ..."` |
-| 文件权限 | 上传后默认没有可执行位；用 `run` 调 bash 执行不受影响，若需要直接执行：`ssh_cmd.py "chmod +x <路径>"` |
+| 文件权限 | 上传后默认没有可执行位；用 `run` 调 bash 执行不受影响，若要直接执行用 `exe` 模式或 `ssh_cmd.py "chmod +x <路径>"` |
 | 路径含空格/特殊字符 | 未做转义，避免这种路径 |
 | 覆盖行为 | 同名文件会被直接覆盖，不备份 |
-| 内容中的换行 | 二进制文件不建议用此方式（会被 CRLF→LF 改写） |
+| 二进制文件 | 靠 `NUL` 字节自动识别并跳过换行转换；不确定时显式加 `raw`，上传后 `md5sum` 对比本地 |
+| 目标路径别写成目录 | 第二个参数是**目标文件名**；若误传目录路径，`cat >` 会失败或传不到位，表现为板上找不到可执行文件 |
 
 ---
 
@@ -372,7 +379,7 @@ py -I tools/ssh_cmd.py "uptime"
 
 ```python
 import os
-HOST = os.environ.get("RK3588_HOST", "10.168.1.114")
+HOST = os.environ.get("RK3588_HOST", "10.168.1.115")
 USER = os.environ.get("RK3588_USER", "tyzc")
 PASS = os.environ.get("RK3588_PASS", "123456")
 ```

@@ -9,3 +9,8 @@ Desktop.ini
 # Editor
 .vscode/
 .idea/
+
+# 构建产物（交叉编译的 ELF、CMake 输出）
+build/
+examples/**/hello
+examples/**/*.o

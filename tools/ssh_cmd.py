@@ -1,7 +1,9 @@
+import os
 import sys
 import paramiko
 
-HOST, USER, PASS = "10.168.1.114", "tyzc", "123456"
+HOST = os.environ.get("RK_HOST", "10.168.1.115")
+USER, PASS = "tyzc", "123456"
 
 def main():
     cmd = sys.argv[1]
