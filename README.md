@@ -16,7 +16,7 @@
 | 开发板 | RK3588S |
 | 系统 | Ubuntu 24.04.3 LTS (aarch64) |
 | 桌面 | GNOME Shell 46 + Wayland + GDM3（已开启自动登录） |
-| 板子地址 | `10.168.1.115`，SSH/RDP 账号 `tyzc` / `123456` |
+| 板子地址 | `10.168.1.117`，SSH/RDP 账号 `tyzc` / `123456` |
 | 主机 | Windows 11 + Git Bash + Python 3（paramiko） |
 | 远程桌面 | 端口 `3389`，Windows 自带 `mstsc` 连接 |
 
@@ -29,7 +29,6 @@ RK3588/
 ├── README.md                              ← 本文件（项目索引）
 ├── docs/                                  ← 文档目录
 │   ├── rk3588-headless-remote-desktop.md  ← 无显示器远程桌面完整配置
-│   ├── rk3588-static-wifi-ip.md           ← 板子 WiFi 固定静态 IP 配置
 │   ├── tools-scripts.md                   ← tools/ 下脚本的详细说明
 │   └── arm-cross-compile-windows.md       ← Windows 部署 ARM(aarch64) 交叉编译环境
 ├── examples/                              ← 示例代码
@@ -48,11 +47,10 @@ RK3588/
 | 文档 | 作用 | 主要内容 | 什么时候看 |
 |------|------|----------|------------|
 | [rk3588-headless-remote-desktop.md](docs/rk3588-headless-remote-desktop.md) | **无显示器远程桌面完整配置手册** | 方案选型、原理（密钥环 + 虚拟显示器）、**可直接照抄的一键部署脚本**、分步说明、验证方法、故障排查表、卸载回滚、安全说明 | 第一次配置、重装系统后复现、板子连不上时排查 |
-| [rk3588-static-wifi-ip.md](docs/rk3588-static-wifi-ip.md) | **板子 WiFi 固定静态 IP 配置** | 用 `nmcli` 把 WiFi 从 DHCP 改为手动静态 IP 的分步步骤、生效与重启验证、回滚、DHCP 池冲突风险与 MAC 地址预留 | 给板子固定 IP、IP 被抢/连不上时排查 |
 | [tools-scripts.md](docs/tools-scripts.md) | **tools/ 脚本使用说明** | 每个脚本的作用、用法示例、工作原理、参数与限制、常见组合用法 | 日常远程操作、修改脚本前 |
 | [arm-cross-compile-windows.md](docs/arm-cross-compile-windows.md) | **Windows ARM 交叉编译环境** | 方案选型、Arm GNU Toolchain 15.2.Rel1 部署步骤、gcc/CMake 用法、静态链接踩坑、WSL2 与板子本地编译备选、故障排查 | 要在 Windows 上给板子编译程序时 |
 
-> 几篇文档互相引用：远程桌面的问题背景和最终配置见第一篇，静态 IP 的改法与回滚见第二篇，脚本的具体用法见第三篇，交叉编译的部署与用法见第四篇。
+> 几篇文档互相引用：远程桌面的问题背景和最终配置见第一篇，脚本的具体用法见第二篇，交叉编译的部署与用法见第三篇。
 
 ---
 
@@ -72,8 +70,8 @@ RK3588/
 ### 1. 远程桌面（Windows）
 
 ```bat
-cmdkey /generic:TERMSRV/10.168.1.115 /user:tyzc /pass:123456
-mstsc /v:10.168.1.115
+cmdkey /generic:TERMSRV/10.168.1.117 /user:tyzc /pass:123456
+mstsc /v:10.168.1.117
 ```
 
 首次连接会提示自签名证书警告，选「是」即可。
@@ -81,7 +79,7 @@ mstsc /v:10.168.1.115
 ### 2. SSH
 
 ```bash
-ssh tyzc@10.168.1.115
+ssh tyzc@10.168.1.117
 ```
 
 ### 3. 用脚本远程检查状态
@@ -155,5 +153,5 @@ MSYS_NO_PATHCONV=1 py -I tools/ssh_put.py examples/hello-aarch64/hello /tmp/hell
 |------|------|
 | 2026-10-20 | 项目创建；完成无显示器 RDP 方案并验证重启；补充虚拟显示器支持；编写远程桌面配置文档与 tools 脚本说明 |
 | 2026-10-22 | 部署 Windows 原生 aarch64 交叉编译环境（Arm GNU Toolchain 15.2.Rel1 → `D:\toolchains\`）；新增 `examples/hello-aarch64` 示例与《Windows 部署 ARM 交叉编译环境》文档 |
-| 2026-10-22 | 板子 WiFi 改为固定静态 IP `10.168.1.115`（`nmcli` manual，网关/DNS `10.168.1.1`）；全仓地址 .114→.115；新增《板子 WiFi 固定静态 IP 配置》文档 |
+| 2026-10-24 | 板子地址更新为 `10.168.1.117`；移除固定静态 IP 方案，全仓地址 .115→.117；删除《板子 WiFi 固定静态 IP 配置》文档 |
 | 2026-10-22 | 交叉编译全链路验证通过（板上运行正常、MD5 一致）；修复 `ssh_put.py` 损坏二进制的问题，新增 `exe` / `raw` 模式；补充工具链下载与解压踩坑 |

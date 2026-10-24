@@ -2,7 +2,7 @@ import os
 import sys
 import paramiko
 
-HOST = os.environ.get("RK_HOST", "10.168.1.115")
+HOST = os.environ.get("RK_HOST", "10.168.1.117")
 USER, PASS = "tyzc", "123456"
 
 def main():

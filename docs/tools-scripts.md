@@ -1,7 +1,7 @@
 # tools/ 脚本说明文档
 
 > 目录：`D:\Code\RK3588\tools`
-> 这些脚本用于在 **Windows 主机上远程操作 RK3588 开发板**（`10.168.1.115`）。
+> 这些脚本用于在 **Windows 主机上远程操作 RK3588 开发板**（`10.168.1.117`）。
 > 背景：Windows 上既没有 `sshpass`，也没有原生可用的 `plink`，所以用 Python + paramiko 封装 SSH，实现"一条命令完成远程操作"。
 
 ---
@@ -42,7 +42,7 @@
 - 验证：
 
   ```bash
-  ping -n 1 10.168.1.115
+  ping -n 1 10.168.1.117
   ```
 
 ### 1.3 统一的工作方式
@@ -56,7 +56,7 @@ cd /d/Code/RK3588
 脚本内部硬编码了连接信息：
 
 ```python
-HOST, USER, PASS = "10.168.1.115", "tyzc", "123456"
+HOST, USER, PASS = "10.168.1.117", "tyzc", "123456"
 ```
 
 换板子/换账号时，**两个 Python 脚本都要改这一行**。
@@ -72,7 +72,7 @@ HOST, USER, PASS = "10.168.1.115", "tyzc", "123456"
 它等价于：
 
 ```bash
-sshpass -p 123456 ssh tyzc@10.168.1.115 "<命令>"
+sshpass -p 123456 ssh tyzc@10.168.1.117 "<命令>"
 ```
 
 但没有 `sshpass` 依赖。
@@ -379,7 +379,7 @@ py -I tools/ssh_cmd.py "uptime"
 
 ```python
 import os
-HOST = os.environ.get("RK3588_HOST", "10.168.1.115")
+HOST = os.environ.get("RK3588_HOST", "10.168.1.117")
 USER = os.environ.get("RK3588_USER", "tyzc")
 PASS = os.environ.get("RK3588_PASS", "123456")
 ```

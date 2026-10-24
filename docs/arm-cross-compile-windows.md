@@ -1,6 +1,6 @@
 # Windows 部署 ARM (aarch64) 交叉编译环境
 
-> 目标：在 **Windows 11 主机** 上编译出能在 **RK3588 开发板**（Ubuntu 24.04 aarch64，`10.168.1.115`）上运行的程序。
+> 目标：在 **Windows 11 主机** 上编译出能在 **RK3588 开发板**（Ubuntu 24.04 aarch64，`10.168.1.117`）上运行的程序。
 > 本文件包含：方案选型 → 实际部署步骤 → 使用方法 → 验证 → 备选方案 → 故障排查。
 > 相关脚本和示例代码见 `D:\Code\RK3588\examples\hello-aarch64\`。
 
@@ -129,8 +129,8 @@ py -I tools/ssh_cmd.py "chmod +x /tmp/hello && /tmp/hello"
 或用系统自带 `scp`（Windows 10+ 自带 OpenSSH 客户端）：
 
 ```bash
-scp examples/hello-aarch64/hello tyzc@10.168.1.115:/tmp/hello
-ssh tyzc@10.168.1.115 "/tmp/hello"
+scp examples/hello-aarch64/hello tyzc@10.168.1.117:/tmp/hello
+ssh tyzc@10.168.1.117 "/tmp/hello"
 ```
 
 > **两个实测踩过的坑**
