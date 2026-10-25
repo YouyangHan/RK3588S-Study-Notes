@@ -49,8 +49,9 @@ RK3588/
 | [rk3588-headless-remote-desktop.md](docs/rk3588-headless-remote-desktop.md) | **无显示器远程桌面完整配置手册** | 方案选型、原理（密钥环 + 虚拟显示器）、**可直接照抄的一键部署脚本**、分步说明、验证方法、故障排查表、卸载回滚、安全说明 | 第一次配置、重装系统后复现、板子连不上时排查 |
 | [tools-scripts.md](docs/tools-scripts.md) | **tools/ 脚本使用说明** | 每个脚本的作用、用法示例、工作原理、参数与限制、常见组合用法 | 日常远程操作、修改脚本前 |
 | [arm-cross-compile-windows.md](docs/arm-cross-compile-windows.md) | **Windows ARM 交叉编译环境** | 方案选型、Arm GNU Toolchain 15.2.Rel1 部署步骤、gcc/CMake 用法、静态链接踩坑、WSL2 与板子本地编译备选、故障排查 | 要在 Windows 上给板子编译程序时 |
+| [qt611-install-on-board.md](docs/qt611-install-on-board.md) | **板子安装 Qt 6.11（官方 ARM64 预编译包）** | aqtinstall + 腾讯云镜像下载官方 `linux_gcc_arm64` 包、装到 `/opt/Qt`、环境配置、qmake/CMake 用法、验证记录、与源码编译的取舍、故障排查 | 给板子装 Qt 6、开发 Qt 应用 |
 
-> 几篇文档互相引用：远程桌面的问题背景和最终配置见第一篇，脚本的具体用法见第二篇，交叉编译的部署与用法见第三篇。
+> 几篇文档互相引用：远程桌面的问题背景和最终配置见第一篇，脚本的具体用法见第二篇，交叉编译的部署与用法见第三篇，板子装 Qt 6.11 见第四篇。
 
 ---
 
@@ -155,3 +156,4 @@ MSYS_NO_PATHCONV=1 py -I tools/ssh_put.py examples/hello-aarch64/hello /tmp/hell
 | 2026-10-22 | 部署 Windows 原生 aarch64 交叉编译环境（Arm GNU Toolchain 15.2.Rel1 → `D:\toolchains\`）；新增 `examples/hello-aarch64` 示例与《Windows 部署 ARM 交叉编译环境》文档 |
 | 2026-10-24 | 板子地址更新为 `10.168.1.117`；移除固定静态 IP 方案，全仓地址 .115→.117；删除《板子 WiFi 固定静态 IP 配置》文档 |
 | 2026-10-22 | 交叉编译全链路验证通过（板上运行正常、MD5 一致）；修复 `ssh_put.py` 损坏二进制的问题，新增 `exe` / `raw` 模式；补充工具链下载与解压踩坑 |
+| 2026-10-25 | 板子安装 Qt 6.11（官方 ARM64 预编译包，放弃源码编译）；aqtinstall + 腾讯云镜像装到 `/opt/Qt/6.11.0/gcc_arm64`，Widgets 程序编译+offscreen 运行验证通过；新增《板子安装 Qt 6.11》文档 |
